@@ -14,13 +14,13 @@ class pohui:
             raise Exception("No base data to train on (data/ours.csv missing)")
         if not os.path.exists('data/random.csv'):
             raise Exception("No base data to train on (data/random.csv missing)")
-        ourdata = pd.read_csv('data/ours.csv')
-        ourdata = ourdata.sample(frac=1)
+        self.ourdata = pd.read_csv('data/ours.csv')
+        self.ourdata = self.ourdata.sample(frac=1)
         randoms = pd.read_csv('data/random.csv')
-        self.upd = pd.concat([randoms, ourdata], ignore_index = True).sample(frac = 1)
+        self.upd = pd.concat([randoms, self.ourdata], ignore_index = True).sample(frac = 1)
         if not os.path.exists('models'):
             os.makedirs('models')
-            trainModels()
+            self.trainModels()
         else:
             self.cbc0 = CatBoostClassifier()
             self.cbc1 = CatBoostClassifier()
@@ -34,17 +34,19 @@ class pohui:
                 self.cbc3.load_model('models/cbc3.cbm')
                 self.cbc4.load_model('models/cbc4.cbm')
             except:
-                trainModels()
-                saveModels()
+                self.trainModels()
+                self.saveModels()
+            self.le = preprocessing.LabelEncoder()
+            self.le.fit(list(self.upd.person.unique()))
 
-    def saveModels():
+    def saveModels(self):
         self.cbc0.save_model('models/cbc0.cbm')
         self.cbc1.save_model('models/cbc1.cbm')
         self.cbc2.save_model('models/cbc2.cbm')
         self.cbc3.save_model('models/cbc3.cbm')
         self.cbc4.save_model('models/cbc4.cbm')
 
-    def Features(data, rate, dim):
+    def Features(self, data, rate, dim):
         spec = np.abs(np.fft.rfft(data))
         freq = np.fft.rfftfreq(len(data), d=1 / dim)
         a = spec / spec.sum()
@@ -93,21 +95,21 @@ class pohui:
 
         return result
     
-    def StereoToMono(data):
+    def StereoToMono(self, data):
         newdata = []
         for i in range(len(data)):
             d = (data[i][0] + data[i][1])/2
             newdata.append(d)
         return(np.array(newdata, dtype='int16'))
     
-    def trainModels():
+    def trainModels(self):
         x = self.upd.drop(columns = ["person"]).values
         y = self.upd["person"].values
         x_train, x_valid, y_train, y_valid = train_test_split(x, y, test_size=0.42)
-        le = preprocessing.LabelEncoder()
-        le.fit(list(upd.person.unique()))
-        y_train = le.transform(y_train)
-        y_valid = le.transform(y_valid)
+        self.le = preprocessing.LabelEncoder()
+        self.le.fit(list(self.upd.person.unique()))
+        y_train = self.le.transform(y_train)
+        y_valid = self.le.transform(y_valid)
 
         train = Pool(x_train, y_train)
         valid = Pool(x_valid, y_valid)
@@ -122,8 +124,6 @@ class pohui:
         self.cbc3.fit(train, eval_set=valid, use_best_model=True, verbose=False)
         self.cbc4 = CatBoostClassifier(iterations=100, learning_rate=0.000001, depth=1)
         self.cbc4.fit(train, eval_set=valid, use_best_model=True, verbose=False)
-
-        saveModels()
 
     def registerUser(self, name, age, gender, pathToWav):
         if not os.path.exists(pathToWav):
@@ -146,7 +146,7 @@ class pohui:
         rate, newdata = wavfile.read(pathToWav)
 
         try:
-            newdata = StereoToMono(newdata)
+            newdata = self.StereoToMono(newdata)
         except:
             pass
 
@@ -155,17 +155,18 @@ class pohui:
             temp = []
             temp.append(gender)
             temp.append(age)
-            f = Features(newdata[start:start+chunk_size],rate,1000)
+            f = self.Features(newdata[start:start+chunk_size],rate,1000)
             for feature in f:
                 temp.append(f[feature])
             temp.append(name)
             if temp[6]!=0 and 'nan' not in ','.join(list(map(str,temp))):
-                self.upd = upd.reset_index(drop=True)
-                self.upd.loc[upd.shape[0]] = temp
+                self.upd = self.upd.reset_index(drop=True)
+                self.upd.loc[self.upd.shape[0]] = temp
+                self.ourdata.loc[self.ourdata.shape[0]] = temp
 
         t = open("data/ours.csv",'r').read()
         open("data/ours.csv",'w').write(t+'\n'+','.join(list(map(str,temp))))
-    
+        
         self.upd = self.upd.sample(frac=1)
 
         self.trainModels()
@@ -173,9 +174,75 @@ class pohui:
     def predict(self, age, gender, pathToWav):
         if not os.path.exists(pathToWav):
             raise Exception('No such file exists (can\'t predict)')
-        # do smth
+
+        if gender not in [0, 1]:
+            raise Exception('Invalid gender entered')
+
+        if age >= 0 and age < 25:
+            age = 20
+        elif age >= 25 and age < 35:
+            age = 30
+        elif age >= 35 and age < 45:
+            age = 40
+        elif age >= 45 and age < 101:
+            age = 50
+        else:
+            raise Exception('Invalid age entered')
+        
+        rate, newdata = wavfile.read(pathToWav)
+
+        try: newdata = self.StereoToMono(newdata)
+        except: pass
+
+        temp = []
+        temp.append(gender)
+        temp.append(age)
+        f = self.Features(newdata,rate,1000)
+
+        for feature in f:   
+            temp.append(f[feature])
+
+        new = pd.DataFrame(temp).transpose()
+        new.columns = [
+            "gender","age","Mean","Mad","deviation","Median",
+            "Min","Max","interquartileR","Skewness","Q25","Q75",
+            "Kurtosis","mfcc_mean","mfcc_max","mfcc_min","fbank_mean",
+            "fbank_max","fbank_min","energy_mean","energy_max",
+            "energy_min","lfbank_mean","lfbank_max","lfbank_min",
+            "ssc_mean","ssc_max","ssc_min","meaN","deviatioN",
+            "mediaN","modE","IQR","skewnesS","q25","q75","kurtosiS"]
+        
+        newx = new.values
+        prediction = []
+
+        for i in range(len(newx)):
+            List = []
+            for j in range(5):
+                exec("List.append(self.le.inverse_transform(np.array(list(map(int,list(self.cbc" + str(j) + ".predict(newx))))))[" + str(i) + "])")
+            m = max(set(List), key = List.count)
+            m1 = List.count(m)
+            List = list(filter(lambda a: a != m, List))
+            try: 
+                m2 = List.count(max(set(List), key = List.count))
+                if m1==m2: 
+                    prediction.append('unidentified')
+                else: 
+                    if m in self.ourdata.person.unique(): prediction.append(m)
+                    else: prediction.append('unidentified')
+            except:
+                if m in self.ourdata.person.unique(): prediction.append(m)
+                else: prediction.append('unidentified')
+        
+        return prediction[0]
 
     def getRegistered(self):
         ourdata = pd.read_csv('data/ours.csv')
         registered = ourdata[['person', 'age', 'gender']].drop_duplicates(subset=['person']).rename(columns={'person':'name', 'age':'age', 'gender':'gender'})
-        return registered.to_json()
+        registered_json = "{\"users\": ["
+        for i in registered.index:
+            registered_json += registered.loc[i].to_json() + ', '
+        return registered_json[:-2]+"]}"
+
+if __name__ == '__main__':
+    x = pohui()
+    print(x.predict(17, 0, 'predict/Artem1.wav'))
