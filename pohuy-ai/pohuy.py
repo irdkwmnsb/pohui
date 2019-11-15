@@ -150,7 +150,10 @@ class pohui:
         except:
             pass
 
+        wew = []
+
         chunk_size = len(newdata)//5
+
         for start in range(0, len(newdata), len(newdata)//10):
             temp = []
             temp.append(gender)
@@ -160,12 +163,13 @@ class pohui:
                 temp.append(f[feature])
             temp.append(name)
             if temp[6]!=0 and 'nan' not in ','.join(list(map(str,temp))):
+                wew.append(','.join(list(map(str,temp))))
                 self.upd = self.upd.reset_index(drop=True)
                 self.upd.loc[self.upd.shape[0]] = temp
                 self.ourdata.loc[self.ourdata.shape[0]] = temp
 
         t = open("data/ours.csv",'r').read()
-        open("data/ours.csv",'w').write(t+'\n'+','.join(list(map(str,temp))))
+        open("data/ours.csv",'w').write(t+'\n'+'\n'.join(wew))
         
         self.upd = self.upd.sample(frac=1)
 
@@ -242,4 +246,4 @@ class pohui:
 
 if __name__ == '__main__':
     x = pohui()
-    print(x.getRegistered())
+    x.registerUser("Vadim", 10, 0, 'add/vadim.wav')
