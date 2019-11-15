@@ -1,8 +1,10 @@
 # requres requests
 
 import requests as req
+import secrets
 
 URL = 'http://localhost:5000/'
+name = ''
 
 def test_list_users():
 	"""listusers"""
@@ -15,10 +17,12 @@ def test_list_users():
 
 def test_regster():
 	"""register"""
+	global name
 
 	try:
+		name = "lox_test_"+str(secrets.token_hex(8))
 		resp = req.post(URL+"api/register",
-			data={"name": "lox_test", "age": 28, "gender": 1},
+			data={"name": name, "age": 28, "gender": 1},
 			files={'voice': open('test.wav', 'rb')}
 			)
 		# print(resp.text)
@@ -30,9 +34,27 @@ def test_regster():
 	except Exception:
 		return "NOT OK"
 
+def test_recog():
+	"""recognition"""
+	try:
+		resp = req.post(URL+"api/recognize",
+			data={"age": 28, "gender": 1},
+			files={'voice': open('test.wav', 'rb')}
+			)
+		print(resp.text)
+		# print(resp.status_code)
+		if resp.status_code == 200:
+			return "OK"
+		else:
+			return "NOT OK"
+	except Exception:
+		return "NOT OK"
+
+
 funcs = [
 	test_regster,
-	test_list_users
+	test_list_users,
+	test_recog
 ]
 
 for f in funcs:

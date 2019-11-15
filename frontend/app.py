@@ -79,9 +79,6 @@ def recognize():
 	if "voice" not in request.files or not all([x in request.values for x in ["age", "gender"]]):
 		return "need more parameters", 400
 
-	if type(request.values["name"]) is not str:
-		return "name must be a string", 400
-
 	try:
 		age = int(request.values["age"])
 	except Exception:
@@ -95,7 +92,8 @@ def recognize():
 	if gender not in [0, 1]:
 		return "gender must be 0 or 1", 400
 
-	age, gender = request.files["age"], request.files["gender"]
+	# age, gender = request.files["age"], request.files["gender"]
+	print("checks done")
 
 	voice = request.files["voice"]
 	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
@@ -104,4 +102,4 @@ def recognize():
 	model = pohui()
 	person = model.predict(age, gender, filename)
 
-	return 200, person
+	return person, 200
