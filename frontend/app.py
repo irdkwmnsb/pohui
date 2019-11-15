@@ -39,7 +39,7 @@ def register():
 	if "voice" not in request.files or not all([x in request.values for x in ["name", "age", "gender"]]):
 		return "need more parameters", 400
 
-	if type(request.values["name"]) is not str and len(request.values["name"]) >= 4:
+	if type(request.values["name"]) is not str or len(request.values["name"]) < 4:
 		return "name must be a string", 400
 
 	name = request.values["name"]
