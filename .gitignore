@@ -2,3 +2,6 @@
 frontend/catboost_info/
 
 frontend/models/
+
+.idea
+__pycache__
