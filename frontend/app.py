@@ -36,7 +36,7 @@ def register():
 	if "voice" not in request.files or not all([x in request.values for x in ["name", "age", "gender"]]):
 		return "need more parameters", 400
 
-	if type(request.values["name"]) is not str:
+	if type(request.values["name"]) is not str and len(request.values["name"]) >= 4:
 		return "name must be a string", 400
 
 	try:
@@ -59,10 +59,11 @@ def register():
 	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
 	voice.save(filename)
 
+	print(f"register({name}, {age}, {gender}, {filename})")
 	model = pohui()
 	model.registerUser(name, age, gender, filename)
 
-	return 200
+	return "ok", 200
 
 
 @app.route('/api/recognize', methods=["POST"])
