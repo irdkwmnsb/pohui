@@ -159,6 +159,9 @@ class pohui:
             temp.append(gender)
             temp.append(age)
             f = self.Features(newdata[start:start+chunk_size],rate,1000)
+            if start+chunk_size >= len(newdata):
+                print("clearing", f)
+                break
             for feature in f:
                 temp.append(f[feature])
             temp.append(name)
