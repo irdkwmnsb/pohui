@@ -17,9 +17,6 @@ function RecorderHookup(record, stop, counter, callback) {
     };
 
     let interval_n = undefined;
-    let length_seconds = 0;
-
-    counter.innerText = "00:00";
 
     record.onclick = function () {
         /* Disable the record button until we get a success or fail from getUserMedia() */
@@ -33,26 +30,25 @@ function RecorderHookup(record, stop, counter, callback) {
 
         navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
             console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
-            /* assign to gumStream for later use */
+            audioContext = new AudioContext();
             gumStream = stream;
-            /* use the stream */
             input = audioContext.createMediaStreamSource(stream);
-            /* Create the Recorder object and configure to record mono sound (1 channel) Recording 2 channels will double the file size */
-            rec = new Recorder(input, {
-                numChannels: 1
-            });
-            //start the recording process
+            rec = new Recorder(input, {numChannels: 1});
             rec.record();
+
             console.log("Recording started");
         }).catch(function (err) {
             //enable the record button if getUserMedia() fails
             record.disabled = false;
             record.disabled = true;
         });
+        counter.style.display = "unset";
+        counter.innerText = "00:00";
+        let length_seconds = 0;
         interval_n = setInterval(function () {
+            length_seconds += 1;
             counter.innerText = Math.floor(length_seconds / 60).toString().padStart(2, "0") + ":" +
                 (length_seconds % 60).toString().padStart(2, "0");
-            length_seconds += 1;
         }, 1000);
     };
     stop.onclick = function () {
@@ -77,13 +73,21 @@ function Pohui() {
     let trainBlob = undefined;
     let recogBlob = undefined;
 
+    let trainSamplesLength = 0;
+    let recogSamplesLength = 0;
+
+
     function saveRecording(name) {
         function save(blob) {
             if (name === "train") {
                 trainBlob = blob;
+                console.log(trainBlob);
+                trainSendButton.disabled = false;
             }
             if (name === "recog") {
                 recogBlob = blob;
+                console.log(recogBlob);
+                recogSendButton.disabled = false;
             }
         }
 
@@ -100,12 +104,86 @@ function Pohui() {
         document.getElementById("recog-counter"),
         saveRecording("recog").save);
 
-    function trainSend() {
+    trainSendButton.onclick = function () {
+        let gender = document.getElementById("train-gender").value;
+        let age = document.getElementById("train-age").value;
+        let name = document.getElementById("train-name").value;
+        var fd = new FormData();
+        console.log(trainBlob.size);
+        fd.append('voice', trainBlob, "voice.wav");
+        fd.append('name', name);
+        fd.append('age', age);
+        fd.append('gender', gender);
+        trainSendButton.disabled = true;
+        document.getElementById("loading").style.display = "unset";
+        $.ajax({
+            type: "POST",
+            url: "/api/register",
+            data: fd,
+            cache: false,
+            processData: false,
+            contentType: false,
+            error: function (error) {
+                console.log(error);
+                if (error.status === 400)
+                    alert(error.responseText);
+                else
+                    alert("Что-то пошло не так\n" + error.statusText);
+                document.getElementById("loading").style.display = "none";
+                recogSendButton.disabled = false;
+            }
+        }).done(function (data) {
+            console.log(data);
+            let new_row = document.createElement("tr");
+            let col_number = document.createElement("td");
+            col_number.innerText = ++trainSamplesLength;
+            let col_who = document.createElement("td");
+            col_who.innerText = `${name} (${age} ${["Man", "Woman"][gender]})`
+            let col_status = document.createElement("td");
+            col_status.innerText = data;
+            new_row.append(col_number, col_who, col_status);
+            document.getElementById("train-records").appendChild(new_row);
+            document.getElementById("loading").style.display = "none";
+        });
+    };
 
-    }
-
-    function recogSend() {
-
+    recogSendButton.onclick = function () {
+        var fd = new FormData();
+        console.log(recogBlob.size);
+        fd.append('voice', recogBlob, "voice.wav");
+        fd.append('age', '20');
+        fd.append('gender', '0');
+        recogSendButton.disabled = true;
+        document.getElementById("loading").style.display = "unset";
+        $.ajax({
+            type: "POST",
+            url: "/api/recognize",
+            data: fd,
+            cache: false,
+            processData: false,
+            contentType: false,
+            error: function (error) {
+                console.log(error);
+                if (error.status === 400)
+                    alert(error.responseText);
+                else
+                    alert("Что-то пошло не так\n" + error.statusText);
+                document.getElementById("loading").style.display = "none";
+                recogSendButton.disabled = false;
+            }
+        }).done(function (data) {
+            console.log(data);
+            let new_row = document.createElement("tr");
+            let col_number = document.createElement("td");
+            col_number.innerText = ++recogSamplesLength;
+            let col_result = document.createElement("td");
+            col_result.innerText = data;
+            let col_status = document.createElement("td");
+            col_status.innerText = "ok";
+            new_row.append(col_number, col_result, col_status);
+            document.getElementById("recog-records").appendChild(new_row);
+            document.getElementById("loading").style.display = "none";
+        });
     }
 }
 

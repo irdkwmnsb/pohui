@@ -16,7 +16,11 @@ body {
     grid-template-rows: 1fr auto;
     grid-template-columns: 1fr 1fr;
 }
-
+#loading {
+    position: absolute;
+    display: none;
+    width: 20vh;
+}
 .cell {
     display: table-cell;
 }

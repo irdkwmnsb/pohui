@@ -66,6 +66,8 @@ def register():
 			model.registerUser(name, age, gender, filename)
 			break
 		except Exception:
+			import traceback
+			traceback.print_exc()
 			pass
 	else:
 		return "твой голос хуйня", 400
