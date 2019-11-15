@@ -152,9 +152,9 @@ class pohui:
 
         wew = []
 
-        chunk_size = len(newdata)//5
+        chunk_size = len(newdata)//10
 
-        for start in range(0, len(newdata), len(newdata)//10):
+        for start in range(0, len(newdata), chunk_size):
             temp = []
             temp.append(gender)
             temp.append(age)
