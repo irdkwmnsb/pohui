@@ -10,8 +10,8 @@ from pohuy import pohui
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = '/tmp'
 
-alphabet_whitelist = "йцукенгшщзхъёфывапролджэячсмитьбю" + \
-                     "qwertyuiopasdfghjklzxcvbnm_1234567890"
+import string
+alphabet_whitelist = string.ascii_letters + string.ascii_lowercase + string.ascii_uppercase
 
 
 @app.route('/')
@@ -62,7 +62,7 @@ def register():
 	
 	print("checks ok")
 	voice = request.files["voice"]
-	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
+	filename = path.join(app.config["UPLOAD_FOLDER"], "rec_" + secrets.token_hex(24) + ".wav")
 	voice.save(filename)
 
 	# print(f"register({name}, {age}, {gender}, {filename})")
@@ -104,7 +104,7 @@ def recognize():
 	print("checks done")
 
 	voice = request.files["voice"]
-	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
+	filename = path.join(app.config["UPLOAD_FOLDER"], "rec_"+secrets.token_hex(24)+".wav")
 	voice.save(filename)
 
 	model = pohui()

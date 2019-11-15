@@ -130,7 +130,7 @@ function Pohui() {
                 else
                     alert("Что-то пошло не так\n" + error.statusText);
                 document.getElementById("loading").style.display = "none";
-                recogSendButton.disabled = false;
+                trainSendButton.disabled = false;
             }
         }).done(function (data) {
             console.log(data);
