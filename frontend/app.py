@@ -10,6 +10,9 @@ from pohuy import pohui
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = '/tmp'
 
+alphabet_whitelist = "йцукенгшщзхъёфывапролджэячсмитьбю" + \
+                     "qwertyuiopasdfghjklzxcvbnm_1234567890"
+
 
 @app.route('/')
 def index():
@@ -39,6 +42,10 @@ def register():
 	if type(request.values["name"]) is not str and len(request.values["name"]) >= 4:
 		return "name must be a string", 400
 
+	name = request.values["name"]
+	if not all([x in alphabet_whitelist for x in name]):
+		return "bad symbols in name", 400
+
 	try:
 		age = int(request.values["age"])
 	except Exception:
@@ -52,7 +59,6 @@ def register():
 	if gender not in [0, 1]:
 		return "gender must be 0 or 1", 400
 
-	name = request.values["name"]
 	
 	print("checks ok")
 	voice = request.files["voice"]
