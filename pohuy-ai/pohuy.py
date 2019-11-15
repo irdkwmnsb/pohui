@@ -94,14 +94,14 @@ class pohui:
             "skewnesS": skewnesS, "q25": q25, "q75": q75, "kurtosiS": kurtosiS}
 
         return result
-    
+
     def StereoToMono(self, data):
         newdata = []
         for i in range(len(data)):
             d = (data[i][0] + data[i][1])/2
             newdata.append(d)
         return(np.array(newdata, dtype='int16'))
-    
+
     def trainModels(self):
         x = self.upd.drop(columns = ["person"]).values
         y = self.upd["person"].values
@@ -238,11 +238,8 @@ class pohui:
     def getRegistered(self):
         ourdata = pd.read_csv('data/ours.csv')
         registered = ourdata[['person', 'age', 'gender']].drop_duplicates(subset=['person']).rename(columns={'person':'name', 'age':'age', 'gender':'gender'})
-        registered_json = "{\"users\": ["
-        for i in registered.index:
-            registered_json += registered.loc[i].to_json() + ', '
-        return registered_json[:-2]+"]}"
+        return registered.to_dict(orient='records')
 
 if __name__ == '__main__':
     x = pohui()
-    print(x.predict(17, 0, 'predict/Artem1.wav'))
+    print(x.getRegistered())
