@@ -21,15 +21,18 @@ def test_regster():
 			data={"name": "lox_test", "age": 28, "gender": 1},
 			files={'voice': open('test.wav', 'rb')}
 			)
-		print(resp.text)
-		print(resp.status_code)
-		return "OK"
+		# print(resp.text)
+		# print(resp.status_code)
+		if resp.status_code == 200:
+			return "OK"
+		else:
+			return "NOT OK"
 	except Exception:
 		return "NOT OK"
 
 funcs = [
 	test_regster,
-	# test_list_users
+	test_list_users
 ]
 
 for f in funcs:

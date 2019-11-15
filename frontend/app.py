@@ -59,7 +59,7 @@ def register():
 	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
 	voice.save(filename)
 
-	print(f"register({name}, {age}, {gender}, {filename})")
+	# print(f"register({name}, {age}, {gender}, {filename})")
 	model = pohui()
 	model.registerUser(name, age, gender, filename)
 
