@@ -1,0 +1,22 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: grid;
+    height: 90%;
+    width: 90%;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 1fr 1fr;
+}
+
+.cell {
+    display: table-cell;
+}
