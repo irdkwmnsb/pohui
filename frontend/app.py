@@ -50,7 +50,7 @@ def register():
 
 	voice = request.files["voice"]
 	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
-	file.save(filename)
+	voice.save(filename)
 
 	model = pohuy()
 	model.registerUser(name, age, gender, filename)
@@ -75,7 +75,7 @@ def recognize():
 
 	voice = request.files["voice"]
 	filename = path.join(app.config["UPLOAD_FOLDER"], secrets.token_hex(24))
-	file.save(filename)
+	voice.save(filename)
 
 	model = pohuy()
 	person = model.predict(age, gender, filename)
