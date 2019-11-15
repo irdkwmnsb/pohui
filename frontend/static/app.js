@@ -71,7 +71,7 @@ function new_fishtext() {
         method: "GET",
         url: "https://fish-text.ru/get",
         data: {type: "paragraph",
-            number: "1",
+            number: "3",
             format: "html"
         }
     }).done((text)=>{
@@ -218,8 +218,8 @@ function Pohui() {
             col_status.innerText = "stored";
             new_row.append(col_number, col_who, col_status);
             document.getElementById("train-records").appendChild(new_row);
-            document.getElementById("loading").style.display = "none";
         });
+        document.getElementById("loading").style.display = "none";
     })
 }
 
