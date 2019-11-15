@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>POHUI - пошли свой голос</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <link rel="stylesheet" href="static/style.css" type="text/css">
+    <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <table id="train-records">
+        <tr>
+            <th>Number</th>
+            <th>Who</th>
+            <th>Status</th>
+        </tr>
+    </table>
+    <table id="recog-records">
+        <tr>
+            <th>Number</th>
+            <th>Result</th>
+            <th>Status</th>
+        </tr>
+    </table>
+    <div id="train-controls">
+        <p>Train</p>
+        <label>
+            Name
+            <input id="train-name" type="text" placeholder="who?">
+        </label>
+        <label>
+            Gender
+            <select id="train-gender">
+                <option value="0">Man</option>
+                <option value="1">Woman</option>
+            </select>
+        </label>
+        <label>
+            Age
+            <select id="train-age">
+                <option value="20"><25</option>
+                <option value="30">[25; 35)</option>
+                <option value="40">[35; 45)</option>
+                <option value="50">>=45</option>
+            </select>
+        </label>
+        <button id="train-record">Record</button>
+        <button id="train-stop" disabled>Stop</button>
+        <button id="train-send" disabled>Send</button>
+        <div id="train-counter"></div>
+        <audio id="train-listen" controls></audio>
+    </div>
+    <div id="recog-controls">
+        <p>Recognize</p>
+        <button id="recog-record">Record</button>
+        <button id="recog-stop" disabled>Stop</button>
+        <button id="recog-send" disabled>Send</button>
+        <div id="recog-counter"></div>
+        <audio id="recog-listen" controls></audio>
+    </div>
+    <div id="fishtext"></div>
+</div>
+<img id="loading" src="https://gifimage.net/wp-content/uploads/2017/08/loading-gif-transparent-25.gif"/>
+<script src="static/app.js"></script>
+</body>
+</html>

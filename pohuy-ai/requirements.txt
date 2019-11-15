@@ -1,0 +1,6 @@
+numpy
+scipy
+python_speech_features
+pandas
+sklearn
+catboost
