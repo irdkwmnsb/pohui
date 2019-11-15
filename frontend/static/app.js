@@ -66,10 +66,24 @@ function RecorderHookup(record, stop, counter, callback) {
     };
 }
 
-function Pohui() {
-    let trainSendButton = document.getElementById("train-send");
-    let recogSendButton = document.getElementById("recog-send");
+function new_fishtext() {
+    $.ajax({
+        method: "GET",
+        url: "https://fish-text.ru/get",
+        data: {type: "paragraph",
+            number: "1",
+            format: "html"
+        }
+    }).done((text)=>{
+        document.getElementById("fishtext").innerHTML = text;
+    });
+}
 
+function Pohui() {
+    new_fishtext();
+    let trainSendButton = document.getElementById("train-send");
+
+    let recogSendButton = document.getElementById("recog-send");
     let trainBlob = undefined;
     let recogBlob = undefined;
 
@@ -136,6 +150,7 @@ function Pohui() {
             }
         }).done(function (data) {
             console.log(data);
+            new_fishtext();
             let new_row = document.createElement("tr");
             let col_number = document.createElement("td");
             col_number.innerText = ++trainSamplesLength;
@@ -175,6 +190,7 @@ function Pohui() {
             }
         }).done(function (data) {
             console.log(data);
+            new_fishtext();
             let new_row = document.createElement("tr");
             let col_number = document.createElement("td");
             col_number.innerText = ++recogSamplesLength;
@@ -186,7 +202,25 @@ function Pohui() {
             document.getElementById("recog-records").appendChild(new_row);
             document.getElementById("loading").style.display = "none";
         });
-    }
+    };
+    $.ajax({
+        type:"GET",
+        url:"/api/listusers"
+    }).done(function(data) {
+        data.forEach((el)=>{
+            console.log(data);
+            let new_row = document.createElement("tr");
+            let col_number = document.createElement("td");
+            col_number.innerText = ++trainSamplesLength;
+            let col_who = document.createElement("td");
+            col_who.innerText = `${el["name"]} (${el["age"]} ${["Man", "Woman"][el["gender"]]})`;
+            let col_status = document.createElement("td");
+            col_status.innerText = "stored";
+            new_row.append(col_number, col_who, col_status);
+            document.getElementById("train-records").appendChild(new_row);
+            document.getElementById("loading").style.display = "none";
+        });
+    })
 }
 
 document.addEventListener("DOMContentLoaded", Pohui);

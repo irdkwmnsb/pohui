@@ -14,14 +14,20 @@ body {
     display: grid;
     height: 90%;
     width: 90%;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr auto auto;
     grid-template-columns: 1fr 1fr;
 }
+
 #loading {
     position: absolute;
-    display: none;
     width: 20vh;
 }
+
+#fishtext {
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
 .cell {
     display: table-cell;
 }
