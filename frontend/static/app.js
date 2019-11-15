@@ -83,11 +83,13 @@ function Pohui() {
                 trainBlob = blob;
                 console.log(trainBlob);
                 trainSendButton.disabled = false;
+                document.getElementById("train-listen").src = URL.createObjectURL(trainBlob);
             }
             if (name === "recog") {
                 recogBlob = blob;
                 console.log(recogBlob);
                 recogSendButton.disabled = false;
+                document.getElementById("recog-listen").src = URL.createObjectURL(recogBlob);
             }
         }
 
