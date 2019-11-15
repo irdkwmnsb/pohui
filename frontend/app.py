@@ -61,7 +61,12 @@ def register():
 
 	# print(f"register({name}, {age}, {gender}, {filename})")
 	model = pohui()
-	model.registerUser(name, age, gender, filename)
+	while True:
+		try:
+			model.registerUser(name, age, gender, filename)
+			break
+		except Exception:
+			pass
 
 	return "ok", 200
 
